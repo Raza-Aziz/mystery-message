@@ -8,16 +8,22 @@ export async function sendVerificationEmail(
   verifyCode: string,
 ): Promise<ApiResponse> {
   try {
-    await resend.emails.send({
+    const { data, error } = await resend.emails.send({
       from: "Acme <onboarding@resend.dev>",
       to: [email],
       subject: "Mystery-message Verification Code ",
       react: VerificationEmail({ username, otp: verifyCode }),
     });
 
+    if (error) {
+      console.error("Resend error:", error);
+      return { success: false, message: "Email service error" };
+    }
+
     return { success: true, message: "Verification Email sent" };
   } catch (emailError) {
     console.error("Error sending verification email", emailError);
+    console.error("Resend error");
     return { success: false, message: "Failed to send verification email" };
   }
 }
